@@ -29,6 +29,16 @@ morgan.token("req-body", (request, response) => {
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>")
 })
+
+const countId = async () => {
+  try {
+    const count = await Person.countDocuments()
+    return count
+  } catch (error) {
+    console.log("Error counting documents:", error.message)
+    return 0
+  }
+}
 app.get("/info", (request, response) => {
   const info = `
   Phonebook has info for ${countId()} people
