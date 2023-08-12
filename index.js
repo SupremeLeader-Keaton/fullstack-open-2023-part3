@@ -30,15 +30,16 @@ app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>")
 })
 
-const countId = async () => {
+app.get("/info", async (request, response) => {
   try {
-    const count = await Person.countDocuments()
-    return count
+    const peopleCount = await Person.countDocuments()
+    const info = `Phonebook has info for ${peopleCount} people\n${new Date()}`
+    response.send(info)
   } catch (error) {
-    console.log("Error counting documents:", error.message)
-    return 0
+    console.log("Error retrieving people count:", error.message)
+    response.status(500).send("Unable to retrieve people count")
   }
-}
+})
 app.get("/info", (request, response) => {
   const info = `
   Phonebook has info for ${countId()} people
