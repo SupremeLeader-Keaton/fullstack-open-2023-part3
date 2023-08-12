@@ -34,7 +34,6 @@ if (process.argv.length < 4) {
   const person = new Person({
     name: inputName,
     number: inputNumber,
-    // id: Math.floor(Math.random() * 100000) + 1,
   })
 
   person.save().then((result) => {
