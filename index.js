@@ -84,6 +84,7 @@ app.post('/api/persons', (request, response) => {
   const person = new Person({
     name: body.name,
     number: body.number,
+    id: Math.floor(Math.random() * 100000) + 1,
   })
 
   person.save().then(savedPerson => {
