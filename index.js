@@ -33,20 +33,19 @@ app.get("/", (request, response) => {
 app.get("/info", async (request, response) => {
   try {
     const peopleCount = await Person.countDocuments()
-    const info = `Phonebook has info for ${peopleCount} people\n${new Date()}`
+    const info = `Phonebook has info for ${peopleCount} people <br> ${new Date()}`
     response.send(info)
   } catch (error) {
-    console.log("Error retrieving people count:", error.message)
     response.status(500).send("Unable to retrieve people count")
   }
 })
-app.get("/info", (request, response) => {
-  const info = `
-  Phonebook has info for ${countId()} people
-  <br>${new Date()}
-  `
-  response.send(info)
-})
+// app.get("/info", (request, response) => {
+//   const info = `
+//   Phonebook has info for ${countId()} people
+//   <br>${new Date()}
+//   `
+//   response.send(info)
+// })
 
 //
 app.get("/api/persons", (request, response) => {
@@ -86,12 +85,21 @@ app.post("/api/persons", (request, response) => {
   })
 })
 
-// app.delete("/api/persons/:id", (request, response) => {
-//   const id = Number(request.params.id)
-//   persons = persons.filter((person) => person.id !== id)
+app.put("/api/notes/:id", (request, response, next) => {
+  const body = request.body
 
-//   response.status(204).end()
-// })
+  const person = {
+    name: body.name,
+    number: body.number,
+  }
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      response.json(updatedPerson)
+    })
+    .catch((error) => next(error))
+})
+
 app.delete("/api/persons/:id", (request, response, next) => {
   console.log(request.params.id)
   Person.findByIdAndRemove(request.params.id)
@@ -118,7 +126,7 @@ const errorHandler = (error, request, response, next) => {
 }
 app.use(errorHandler) // this has to be the last loaded middleware.
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
