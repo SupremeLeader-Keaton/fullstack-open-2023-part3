@@ -3,7 +3,6 @@ const express = require("express")
 const cors = require("cors")
 const morgan = require("morgan")
 const app = express()
-const Person = require("./models/person")
 app.use(express.static("build"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -15,7 +14,7 @@ morgan.token("req-body", (request, response) => {
   }
   return ""
 })
-
+const Person = require("./models/person")
 //
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>")
