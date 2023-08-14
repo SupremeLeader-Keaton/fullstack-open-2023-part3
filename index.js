@@ -2,20 +2,11 @@ require("dotenv").config()
 const express = require("express")
 const cors = require("cors")
 const morgan = require("morgan")
-const Person = require("./models/person")
-
 const app = express()
+const Person = require("./models/person")
 app.use(express.static("build"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-const requestLogger = (request, response, next) => {
-  console.log("Method:", request.method)
-  console.log("Path:  ", request.path)
-  console.log("Body:  ", request.body)
-  console.log("---")
-  next()
-}
-app.use(requestLogger)
 app.use(cors())
 app.use(morgan(":method :url :status :response-time ms - :req-body"))
 morgan.token("req-body", (request, response) => {
@@ -39,13 +30,6 @@ app.get("/info", async (request, response) => {
     response.status(500).send("Unable to retrieve people count")
   }
 })
-// app.get("/info", (request, response) => {
-//   const info = `
-//   Phonebook has info for ${countId()} people
-//   <br>${new Date()}
-//   `
-//   response.send(info)
-// })
 
 //
 app.get("/api/persons", (request, response) => {
@@ -70,7 +54,6 @@ app.get("/api/persons/:id", (request, response, next) => {
 
 app.post("/api/persons", (request, response) => {
   const body = request.body
-  console.log(body)
   if (body.name === undefined || body.number === undefined) {
     return response.status(400).json({ error: "name or number missing" })
   }
@@ -104,7 +87,6 @@ app.put("/api/persons/:id", (request, response, next) => {
 })
 
 app.delete("/api/persons/:id", (request, response, next) => {
-  console.log(request.params.id)
   Person.findByIdAndRemove(request.params.id)
     .then((result) => {
       response.status(204).end()
@@ -119,16 +101,14 @@ const unknownEndpoint = (request, response) => {
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" })
-  } else if (error.name === "ValidationError") {
+  } else if (error.name === "ValidationError" || error.number === "ValidationError") {
     return response.status(400).json({ error: error.message })
   }
   next(error)
 }
-app.use(errorHandler) // this has to be the last loaded middleware.
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

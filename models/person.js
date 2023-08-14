@@ -10,7 +10,7 @@ mongoose
     console.log("connected to MongoDB")
     const PORT = process.env.PORT
     app.listen(PORT, () => {
-      console.log(`Server is listening on port ${PORT}`)
+      console.log(`server is listening on port ${PORT}`)
     })
   })
   .catch((error) => {
@@ -23,7 +23,15 @@ const personSchema = new mongoose.Schema({
     minLength: 5,
     required: true,
   },
-  number: String,
+  number: {
+    type: String,
+    minLength: 8,
+    validate: {
+      validator: (v) => /^(\d{2,3})-(\d+)$/.test(v),
+      message: "Invalid number format.",
+    },
+    required: true,
+  },
 })
 personSchema.set("toJSON", {
   transform: (document, returnedObject) => {
@@ -32,6 +40,5 @@ personSchema.set("toJSON", {
     delete returnedObject.__v
   },
 })
-const Person = mongoose.model("Person", personSchema)
 
 module.exports = mongoose.model("Person", personSchema)
