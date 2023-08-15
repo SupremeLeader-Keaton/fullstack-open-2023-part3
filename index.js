@@ -16,7 +16,7 @@ morgan.token("req-body", (request, response) => {
 })
 const Person = require("./models/person")
 
-
+//
 const errorHandler = (error, request, response, next) => {
   console.log(error)
 
@@ -28,20 +28,20 @@ const errorHandler = (error, request, response, next) => {
 
   next(error)
 }
-
 app.use(errorHandler)
+
 //
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>")
 })
 
-app.get("/info", async (request, response) => {
+app.get("/info", (request, response) => {
   try {
-    const peopleCount = await Person.countDocuments()
+    const peopleCount = Person.countDocuments()
     const info = `Phonebook has info for ${peopleCount} people <br> ${new Date()}`
     response.send(info)
   } catch (error) {
-    response.status(500).send("Unable to retrieve people count")
+    next(error)
   }
 })
 
@@ -61,25 +61,22 @@ app.get("/api/persons/:id", (request, response, next) => {
         response.status(404).end()
       }
     })
-    .catch((error) => {
-      next(error)
-    })
+    .catch((error) => next(error))
 })
 
 app.post("/api/persons", (request, response) => {
   const body = request.body
-  if (body.name === undefined || body.number === undefined) {
-    return response.status(400).json({ error: "name or number missing" })
-  }
-
   const person = new Person({
     name: body.name,
     number: body.number,
   })
 
-  person.save().then((savedPerson) => {
-    response.json(savedPerson)
-  })
+  person
+    .save()
+    .then((savedPerson) => {
+      response.json(savedPerson)
+    })
+    .catch((error) => next(error))
 })
 
 app.put("/api/persons/:id", (request, response, next) => {
