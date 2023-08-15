@@ -35,9 +35,9 @@ app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>")
 })
 
-app.get("/info", (request, response) => {
+app.get("/info", async (request, response) => {
   try {
-    const peopleCount = Person.countDocuments()
+    const peopleCount = await Person.countDocuments()
     const info = `Phonebook has info for ${peopleCount} people <br> ${new Date()}`
     response.send(info)
   } catch (error) {
