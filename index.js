@@ -15,6 +15,21 @@ morgan.token("req-body", (request, response) => {
   return ""
 })
 const Person = require("./models/person")
+
+
+const errorHandler = (error, request, response, next) => {
+  console.log(error)
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" })
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 //
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>")
@@ -98,30 +113,6 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" })
 }
 app.use(unknownEndpoint)
-
-const errorHandler = (error, request, response, next) => {
-  console.log(error)
-
-  if (error.name === "CastError") {
-    return response.status(400).send({ error: "malformatted id" })
-  } else if (error.name === "ValidationError") {
-    // Check if the error is specifically a validation error for the "number" field
-    if (
-      error.errors &&
-      error.errors.number &&
-      error.errors.number.kind === "minlength"
-    ) {
-      return response
-        .status(400)
-        .json({ error: "Number should be at least 8 characters long" })
-    }
-    return response.status(400).json({ error: error.message })
-  }
-
-  next(error)
-}
-
-app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
